@@ -1,0 +1,57 @@
+# ========= PYTHON (back-end) =========
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.dll
+*.zip
+*.safetensors
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Model files
+back-end/model/
+back-end/*.zip
+
+# IDE
+.vscode/
+*.code-workspace
+
+# ========= NODE / REACT NATIVE (front-end) =========
+node_modules/
+.expo/
+.expo-shared/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+
+# Metro / Babel cache
+.cache/
+babel-cache/
+
+# Android / iOS build stuff (nếu có sau này)
+android/
+ios/
+
+# TypeScript
+*.tsbuildinfo
+
+# dotenv (nếu dùng)
+.env
+.env.*
+
+# ========= MAC / OS / EDITOR STUFF =========
+.DS_Store
+Thumbs.db
+
