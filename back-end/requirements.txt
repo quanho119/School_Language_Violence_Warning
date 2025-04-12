@@ -2,8 +2,9 @@ flask
 flask-cors
 torch
 transformers
-underthesea
-vncorenlp
+underthesea==1.3.3
 scikit-learn
 pandas
 numpy
+openai-whisper
+soundfile
