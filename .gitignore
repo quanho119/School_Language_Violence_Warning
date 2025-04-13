@@ -40,14 +40,11 @@ build/
 .cache/
 babel-cache/
 
-# Android / iOS build stuff (nếu có sau này)
-android/
-ios/
 
 # TypeScript
 *.tsbuildinfo
 
-# dotenv (nếu dùng)
+# dotenv
 .env
 .env.*
 
@@ -55,3 +52,5 @@ ios/
 .DS_Store
 Thumbs.db
 
+#.idea
+*.txt
