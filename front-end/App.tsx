@@ -1,8 +1,16 @@
-import React, { useState } from "react";
-import { StyleSheet, Text, TextInput, View, Button, ActivityIndicator } from "react-native";
+import React, { useState, useEffect } from "react";
+import { StyleSheet, Text, TextInput, View, Button, ActivityIndicator, Alert } from "react-native";
 import { Audio } from "expo-av";
-import * as FileSystem from "expo-file-system";
 import styles from "./styles";
+import * as FileSystem from "expo-file-system";
+import { getMessaging, getToken } from "firebase/messaging";
+import { firebaseConfig } from "./firebaseConfig"; // Import cấu hình Firebase
+import { initializeApp } from "firebase/app"; // Khởi tạo Firebase
+import { getDatabase, ref, get } from "firebase/database";
+
+// Khởi tạo Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
 export default function App() {
   const [started, setStarted] = useState(false);
@@ -10,9 +18,40 @@ export default function App() {
   const [result, setResult] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Lấy token Firebase khi app khởi chạy
+    fetchTokenFromDatabase();
+  }, []);
+
+  const fetchTokenFromDatabase = async () => {
+    setLoading(true);
+    try {
+      const tokenRef = ref(database, "notifications/token"); // Đường dẫn tới token trong Firebase Realtime Database
+      const snapshot = await get(tokenRef);
+
+      if (snapshot.exists()) {
+        const tokenFromDB = snapshot.val(); // Lấy token từ Firebase
+        setToken(tokenFromDB);
+        console.log("🚀 Token lấy từ Firebase:", tokenFromDB);
+      } else {
+        console.log("⚠️ Không tìm thấy token trong Firebase Realtime Database");
+      }
+    } catch (error) {
+      console.error("❌ Lỗi khi lấy token từ Firebase:", error);
+    }
+    setLoading(false);
+  };
 
   const handleAnalyze = async (inputText: string) => {
     if (!inputText.trim()) return;
+
+    if (!token) { // Kiểm tra nếu token không có
+      Alert.alert("Lỗi", "Không có token để gửi");
+      return;
+    }
 
     setLoading(true);
     setResult(null);
@@ -23,7 +62,10 @@ export default function App() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text: inputText }),
+        body: JSON.stringify({
+          text: inputText,
+          token: token, // Gửi token Firebase lên backend
+        }),
       });
 
       const data = await response.json();
@@ -59,18 +101,18 @@ export default function App() {
         {
           android: {
             extension: '.wav',
-            outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_DEFAULT, // Default WAV format
-            audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_PCM_16BIT, // PCM 16-bit
-            sampleRate: 16000, // Whisper model prefers 16kHz
-            numberOfChannels: 1, // Mono audio
-            bitRate: 256000, // Adjusted for WAV
+            outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_DEFAULT,
+            audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_PCM_16BIT,
+            sampleRate: 16000,
+            numberOfChannels: 1,
+            bitRate: 256000,
           },
           ios: {
             extension: '.wav',
-            audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_HIGH, // High quality
-            sampleRate: 16000, // Whisper model prefers 16kHz
-            numberOfChannels: 1, // Mono audio
-            linearPCMBitDepth: 16, // 16-bit PCM
+            audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_HIGH,
+            sampleRate: 16000,
+            numberOfChannels: 1,
+            linearPCMBitDepth: 16,
             linearPCMIsBigEndian: false,
             linearPCMIsFloat: false,
           },
@@ -97,12 +139,11 @@ export default function App() {
       setLoading(true);
 
       try {
-        // Ensure the file is read as Base64
         const fileInfo = await FileSystem.readAsStringAsync(uri, {
           encoding: FileSystem.EncodingType.Base64,
         });
 
-        // Send the WAV file to the server
+        // Gửi file audio cùng với token lên backend
         const response = await fetch("http://192.168.1.100:5000/transcribe", {
           method: "POST",
           headers: {
@@ -114,7 +155,7 @@ export default function App() {
         const data = await response.json();
         if (data && data.transcript) {
           setText(data.transcript);
-          handleAnalyze(data.transcript);
+          handleAnalyze(data.transcript); // Gửi văn bản và token lên backend để phân tích
         } else {
           setResult("Không nhận được văn bản từ audio");
         }
