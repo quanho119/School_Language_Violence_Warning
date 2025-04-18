@@ -19,7 +19,11 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.vio-detect.app"
+      "bundleIdentifier": "com.vio-detect.app",
+      "infoPlist": {
+        "UIBackgroundModes": ["remote-notification"],
+        "NSUserNotificationAlertSound": true
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -28,6 +32,15 @@
         "package": "com.vio_det.app"
       }
     },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "sounds": ["default"]
+        }
+      ]
+    ],
     "web": {
       "favicon": "./assets/favicon.png"
     }

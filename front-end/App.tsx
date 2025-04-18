@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, TextInput, View, Button, ActivityIndicator, Alert } from "react-native";
+import { Text, TextInput, View, TouchableOpacity, ActivityIndicator, Alert, SafeAreaView } from "react-native";
+import styles from "./styles"; // Import styles từ styles.ts
 import { Audio } from "expo-av";
-import styles from "./styles";
 import * as FileSystem from "expo-file-system";
 import { getMessaging, getToken } from "firebase/messaging";
 import { firebaseConfig } from "./firebaseConfig"; // Import cấu hình Firebase
 import { initializeApp } from "firebase/app"; // Khởi tạo Firebase
 import { getDatabase, ref, get } from "firebase/database";
+import { BlurView } from "expo-blur";
+import { Ionicons } from "@expo/vector-icons";
 
 // Khởi tạo Firebase
 const app = initializeApp(firebaseConfig);
@@ -72,7 +74,14 @@ export default function App() {
       console.log("Server response:", data);
 
       if (data && data.violence_level) {
-        setResult(data.violence_level);
+        const labelMap: { [key: string]: string } = {
+          low: "Thấp",
+          medium: "Trung bình",
+          high: "Cao",
+        };
+
+        const vietnameseLabel = labelMap[data.violence_level] || "Không xác định";
+        setResult(vietnameseLabel); // Hiển thị nhãn tiếng Việt
       } else {
         setResult("Không nhận được dữ liệu phù hợp");
       }
@@ -172,39 +181,53 @@ export default function App() {
   if (!started) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Phân tích bạo lực học đường</Text>
-        <Button title="Khởi động ứng dụng" onPress={() => setStarted(true)} />
+        <BlurView intensity={50} tint="light" style={styles.glassCard}>
+          <Text style={styles.title}>Phân tích bạo lực học đường</Text>
+          <TouchableOpacity style={styles.buttonPrimary} onPress={() => setStarted(true)}>
+            <Text style={styles.buttonPrimaryText}>Khởi động ứng dụng</Text>
+          </TouchableOpacity>
+        </BlurView>
       </View>
     );
   }
 
   // Giao diện chính
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Kiểm tra mức độ bạo lực</Text>
+    <SafeAreaView style={styles.container}>
+      <BlurView intensity={80} tint="light" style={styles.glassCard}>
+        <Text style={styles.title}>Phân tích mức độ bạo lực</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Nhập câu nói..."
-        value={text}
-        onChangeText={setText}
-      />
-
-      <Button title="Phân tích văn bản" onPress={() => handleAnalyze(text)} />
-
-      <View style={{ marginVertical: 10 }}>
-        <Button
-          title={recording ? "Dừng ghi âm" : "Ghi âm câu nói"}
-          onPress={recording ? stopRecording : startRecording}
-          color={recording ? "red" : "#007bff"}
+        <TextInput
+          style={styles.input}
+          placeholder="Nhập câu nói..."
+          placeholderTextColor="#aaa"
+          value={text}
+          onChangeText={setText}
         />
-      </View>
 
-      {loading ? (
-        <ActivityIndicator size="large" color="#007bff" style={{ marginTop: 20 }} />
-      ) : result !== null ? (
-        <Text style={styles.result}>Kết quả: {result}</Text>
-      ) : null}
-    </View>
+        <TouchableOpacity style={styles.buttonPrimary} onPress={() => handleAnalyze(text)}>
+          <Text style={styles.buttonPrimaryText}>Phân tích</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.micButton} onPress={recording ? stopRecording : startRecording}>
+          <Ionicons name={recording ? "mic-off" : "mic"} size={28} color="#fff" />
+        </TouchableOpacity>
+
+        {loading && <ActivityIndicator size="large" color="#00bcd4" style={styles.activityIndicator} />}
+      </BlurView>
+
+      {result && (
+        <View style={styles.resultBox}>
+          <Text style={styles.resultText}>Mức độ bạo lực: {result}</Text>
+        </View>
+      )}
+
+      {/* Navbar */}
+      <View style={styles.bottomTabBar}>
+        <Ionicons name="home" size={26} color="#00bcd4" />
+        <Ionicons name="notifications" size={26} color="#00bcd4" />
+        <Ionicons name="settings" size={26} color="#00bcd4" />
+      </View>
+    </SafeAreaView>
   );
 }

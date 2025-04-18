@@ -1,10 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Text, View, Alert, Platform } from "react-native";
+import { Text, View, Alert, Platform, Vibration, TouchableOpacity, SafeAreaView } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, set } from "firebase/database";
-import { firebaseConfig } from "./firebaseConfig"; // Import cấu hình Firebase
+import { firebaseConfig } from "./firebaseConfig";
+import styles from "./styles";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false
+  })
+});
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
@@ -17,7 +27,7 @@ export default function App() {
 
   // Gửi token lên Firebase
   const sendTokenToFirebase = (token: string) => {
-    const tokenRef = ref(database, "notifications/token"); // Lưu token vào Firebase ở đường dẫn "notifications/token"
+    const tokenRef = ref(database, "notifications/token");
     set(tokenRef, token)
       .then(() => {
         console.log("✅ Token đã lưu lên Firebase:", token);
@@ -32,16 +42,16 @@ export default function App() {
       if (token) {
         setExpoPushToken(token);
         console.log("📱 Expo Push Token:", token);
-        sendTokenToFirebase(token); // Gửi token lên Firebase khi lấy được
+        sendTokenToFirebase(token);
       }
     });
 
-    // Listener nhận thông báo khi app đang chạy
     notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
       setNotification(notification);
+      Vibration.vibrate();
+      console.log("🔔 Nhận thông báo:", notification);
     });
 
-    // Listener khi người dùng tương tác với thông báo
     responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
       console.log("📥 Người dùng nhấn vào thông báo:", response);
     });
@@ -53,26 +63,28 @@ export default function App() {
   }, []);
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 20 }}>
-      <Text style={{ fontSize: 22, fontWeight: "bold", marginBottom: 20 }}>
-        Ứng dụng nhận cảnh báo bạo lực học đường
-      </Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.glassCard}>
+        <Text style={styles.title}>📢 Cảnh báo học đường</Text>
 
-      <Text style={{ fontSize: 16, marginBottom: 10 }}>
-        Token thông báo (dùng để gửi từ backend):
-      </Text>
-      <Text selectable style={{ fontSize: 14, color: "#333", marginBottom: 20 }}>
-        {expoPushToken ?? "Đang lấy token..."}
-      </Text>
+        {notification ? (
+          <View style={styles.notificationBox}>
+            <Text style={styles.notificationLabel}>Thông báo mới:</Text>
+            <Text style={styles.notificationText}>📌 {notification.request.content.title}</Text>
+            <Text style={styles.notificationText}>📝 {notification.request.content.body}</Text>
+          </View>
+        ) : (
+          <Text style={styles.noNotification}>Không có thông báo nào được nhận.</Text>
+        )}
+      </View>
 
-      {notification && (
-        <View style={{ marginTop: 20 }}>
-          <Text style={{ fontWeight: "bold" }}>📢 Thông báo nhận được:</Text>
-          <Text>Tiêu đề: {notification.request.content.title}</Text>
-          <Text>Nội dung: {notification.request.content.body}</Text>
-        </View>
-      )}
-    </View>
+      {/* Tab Bar */}
+      <View style={styles.bottomTabBar}>
+        <Ionicons name="home-outline" size={26} color="#00bcd4" />
+        <Ionicons name="notifications-outline" size={26} color="#00bcd4" />
+        <Ionicons name="person-outline" size={26} color="#00bcd4" />
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -81,17 +93,11 @@ async function registerForPushNotificationsAsync() {
   let token;
 
   if (Device.isDevice) {
-    console.log("📲 Đang chạy trên thiết bị thật");
-
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    console.log("🔐 Quyền thông báo hiện tại:", existingStatus);
-
     let finalStatus = existingStatus;
-
     if (existingStatus !== "granted") {
       const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
-      console.log("🆕 Quyền sau khi yêu cầu:", finalStatus);
     }
 
     if (finalStatus !== "granted") {
@@ -112,6 +118,7 @@ async function registerForPushNotificationsAsync() {
     await Notifications.setNotificationChannelAsync("default", {
       name: "default",
       importance: Notifications.AndroidImportance.HIGH,
+      sound: "default", // Đảm bảo âm thanh được bật
       vibrationPattern: [0, 250, 250, 250],
       lightColor: "#FF231F7C",
     });
