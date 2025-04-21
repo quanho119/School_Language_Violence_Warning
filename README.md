@@ -224,4 +224,4 @@ Contributions are welcome! Please follow these steps:
 
 ## Contact
 
-For questions or feedback, please contact [GitHub Repository](https://github.com/quanho119).
+For questions or feedback, please contact [GitHub](https://github.com/quanho119).
