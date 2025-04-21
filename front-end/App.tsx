@@ -59,7 +59,7 @@ export default function App() {
     setResult(null);
 
     try {
-      const response = await fetch("http://192.168.1.100:5000/predict", {
+      const response = await fetch("http://172.20.10.4:5000/predict", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -153,7 +153,7 @@ export default function App() {
         });
 
         // Gửi file audio cùng với token lên backend
-        const response = await fetch("http://192.168.1.100:5000/transcribe", {
+        const response = await fetch("http://172.20.10.4:5000/transcribe", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
