@@ -1,5 +1,5 @@
 import { StyleSheet, Dimensions } from "react-native";
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
     container: {
@@ -78,6 +78,47 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 20,
         elevation: 15,
+    },
+    historyContainer: {
+        width: width * 0.9,
+        maxHeight: height * 0.4,
+        backgroundColor: "#ffffff",
+        borderRadius: 20,
+        padding: 20,
+        marginTop: 10,
+        marginBottom: 30,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    historyTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#007bff",
+        marginBottom: 12,
+    },
+    historyItem: {
+        backgroundColor: "#f2f9ff",
+        borderRadius: 12,
+        padding: 10,
+        marginBottom: 8,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    historyText: {
+        fontSize: 15,
+        color: "#333",
+    },
+    noHistory: {
+        fontSize: 15,
+        fontStyle: "italic",
+        color: "#666",
+        textAlign: "center",
     },
 });
 
