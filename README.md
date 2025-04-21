@@ -99,6 +99,7 @@ A comprehensive system for detecting and analyzing violent language in school en
    ```
 
 2. Create a virtual environment and activate it:
+
    ```bash
    python -m venv venv
    ```
@@ -110,6 +111,7 @@ A comprehensive system for detecting and analyzing violent language in school en
   ```
 
 - On Windows:
+
   ```bash
   venv\Scripts\activate
   ```
@@ -126,6 +128,7 @@ A comprehensive system for detecting and analyzing violent language in school en
 - Whisper will be downloaded automatically when the server starts.
 
 5. Start the Flask server:
+
    ```bash
    python app.py
    ```
