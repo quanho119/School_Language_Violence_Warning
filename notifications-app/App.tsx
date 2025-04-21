@@ -56,7 +56,6 @@ export default function App() {
       });
   };
 
-  // Hàm lấy dữ liệu từ Firebase
   const fetchViolentMessagesFromFirebase = async (setMessages: React.Dispatch<React.SetStateAction<string[]>>) => {
     const messagesRef = ref(database, "violent_messages");
 
@@ -94,7 +93,6 @@ export default function App() {
       console.log("📥 Người dùng nhấn vào thông báo:", response);
     });
 
-    // Lấy dữ liệu lịch sử từ Firebase
     fetchViolentMessagesFromFirebase(setViolentMessages);
 
     return () => {
