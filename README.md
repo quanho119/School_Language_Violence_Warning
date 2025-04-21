@@ -84,7 +84,11 @@ A comprehensive system for detecting and analyzing violent language in school en
    npm start
    ```
 
-5. Do again with `front-end` directory
+5. Do again with `front-end` directory:
+
+   ```bash
+   cd front-end
+   ```
 
 ### Backend Setup
 
