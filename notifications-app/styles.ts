@@ -1,6 +1,5 @@
 import { StyleSheet, Dimensions } from "react-native";
 const { width, height } = Dimensions.get("window");
-import { Ionicons } from "@expo/vector-icons";
 
 const styles = StyleSheet.create({
     container: {
