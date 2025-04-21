@@ -124,7 +124,7 @@ A comprehensive system for detecting and analyzing violent language in school en
 
 4. Download the BERT model and Whisper model:
 
-- Place the fine-tuned BERT model in the model/ directory.
+- Place the fine-tuned BERT model in the `model/` directory.
 - Whisper will be downloaded automatically when the server starts.
 
 5. Start the Flask server:
